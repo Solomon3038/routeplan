@@ -13,7 +13,7 @@ import java.util.Set;
 
 @Entity
 @TableGenerator(name = "location")
-public class Location implements Comparable<Location> {
+public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -109,7 +109,11 @@ public class Location implements Comparable<Location> {
     }
 
     @Override
-    public int compareTo(Location o) {
-        return id.compareTo(o.id);
+    public String toString() {
+        return "Location{" +
+                "name='" + name + '\'' +
+                ", x=" + x +
+                ", y=" + y +
+                '}';
     }
 }

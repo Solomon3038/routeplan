@@ -1,7 +1,7 @@
 package com.route.plan.model;
 
 public class RoutePlanQueue {
-   private String status;
+    private String status;
 
     public String getStatus() {
         return status;

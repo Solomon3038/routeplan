@@ -29,20 +29,21 @@ public class RoutePlan {
     }
 
     private void doOptimalRout(Location headLocation) {
-        List<Location> recoverList = new ArrayList<>(Arrays.asList(plan));
-        Map<Location, List<Location>> routePlansMap = new HashMap<>();
+        if (plan.length > 1) {
+            List<Location> recoverList = new ArrayList<>(Arrays.asList(plan));
+            Map<Location, List<Location>> routePlansMap = new HashMap<>();
 
-        for (Location location : recoverList) {
-            chooseLocation(location, recoverList, headLocation);
-            routePlansMap.put(location, routePlan);
+            for (Location location : recoverList) {
+                chooseLocation(location, recoverList, headLocation);
+                routePlansMap.put(location, routePlan);
 
-            if (bestRoad >= road) {
-                bestRoad = road;
-                bestLocation = location;
+                if (bestRoad >= road) {
+                    bestRoad = road;
+                    bestLocation = location;
+                }
             }
+            plan = routePlansMap.get(bestLocation).toArray(new Location[0]);
         }
-
-        plan = (Location[]) routePlansMap.get(bestLocation).toArray();
     }
 
     private void chooseLocation(Location location, List<Location> recoverList, Location recoveryHead) {

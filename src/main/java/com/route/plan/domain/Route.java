@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @TableGenerator(name = "route")
@@ -20,16 +21,18 @@ public class Route {
     @Column(unique = true)
     private String name;
 
+    @NotNull
     @OneToOne(fetch = FetchType.LAZY)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private Location head;
 
+    @NotNull
     @ManyToMany(fetch = FetchType.LAZY)
     @OrderColumn(name = "id")
-    @JoinTable(name="route_location",
-            joinColumns = @JoinColumn(name="route_id", referencedColumnName="id"),
-            inverseJoinColumns = @JoinColumn(name="location_id", referencedColumnName="id")
+    @JoinTable(name = "route_location",
+            joinColumns = @JoinColumn(name = "route_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "location_id", referencedColumnName = "id")
     )
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.concurrent.TimeUnit;
 
 @Controller
 public class MainController {
@@ -24,12 +23,13 @@ public class MainController {
         this.routeRepository = routeRepository;
     }
 
+    //із статусом 202 ще не доводилось працювати, тому ось така недолуга реалізація :)
     @GetMapping(value = "/routes/{id}/plan", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getRouteSuccess(HttpServletResponse response, @PathVariable long id) throws InterruptedException {
         Route route = routeRepository.findRouteById(id);
         RoutePlan routePlan = new RoutePlan(route.getLocations(), route.getHead());
 
-        TimeUnit.SECONDS.sleep(30);
+        //TimeUnit.SECONDS.sleep(60);
 
         int status = response.getStatus();
         if (status == 202) {
