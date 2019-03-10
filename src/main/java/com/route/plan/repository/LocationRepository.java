@@ -12,7 +12,7 @@ public interface LocationRepository extends CrudRepository<Location, Long> {
 
     @Override
     @Transactional
-    <S extends Location> S  save(S item);
+    <S extends Location> S save(S item);
 
     @Transactional
     @Modifying
@@ -20,4 +20,6 @@ public interface LocationRepository extends CrudRepository<Location, Long> {
     void delete(@Param("id") long id);
 
     Location findLocationById(long id);
+
+    Iterable<Location> findAllById(Iterable<Long> var1);
 }

@@ -1,76 +1,46 @@
 package com.route.plan.controllers;
 
-import com.route.plan.domain.Location;
 import com.route.plan.domain.Route;
-import com.route.plan.repository.LocationRepository;
-import com.route.plan.repository.RouteRepository;
+import com.route.plan.services.RouteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/routes")
 public class RouteController {
-    private final RouteRepository routeRepository;
-    private final LocationRepository locationRepository;
+    private final RouteService routeService;
 
-    public RouteController(RouteRepository routeRepository, LocationRepository locationRepository) {
-        this.routeRepository = routeRepository;
-        this.locationRepository = locationRepository;
+    public RouteController(RouteService routeService) {
+        this.routeService = routeService;
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    @ResponseStatus(HttpStatus.CREATED)
-    public Route save(@RequestParam String name,
-                      @RequestParam long headId,
-                      @RequestParam Long[] locationsId) {
-        Location[] locations = Stream.of(locationsId).map(locationRepository::findLocationById).toArray(Location[]::new);
-        Location head = locationRepository.findLocationById(headId);
-        head.setHead(true);
-        Route route = new Route(name, locations, head);
-        Route routeSaved = routeRepository.save(route);
-        if (routeSaved.getId() == null) {
-            return null;
-        }
-        return routeSaved;
+    public ResponseEntity<Route> save(@RequestParam String name,
+                                      @RequestParam long headId,
+                                      @RequestParam Long[] locationsId) {
+        Route route = routeService.save(name, headId, locationsId);
+        return (route != null ? new ResponseEntity<>(route, HttpStatus.CREATED) : new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    @ResponseStatus(HttpStatus.OK)
-    public Route get(@PathVariable long id) {
-        return routeRepository.findRouteById(id);
+    public ResponseEntity<Route> get(@PathVariable long id) {
+        Route route = routeService.get(id);
+        return (route != null ? new ResponseEntity<>(route, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void update(@PathVariable long id,
-                       @RequestParam long headId) {
-        Route route = routeRepository.findRouteById(id);
-        Location headOld = route.getHead();
-        headOld.setHead(false);
-        Location headNew = locationRepository.findLocationById(headId);
-        headNew.setHead(true);
-        route.setHead(headNew);
-        routeRepository.save(route);
+    public ResponseEntity<Route> update(@PathVariable long id,
+                                        @RequestParam long headId) {
+        Route route = routeService.update(id, headId);
+        return (route != null ? new ResponseEntity<>(route, HttpStatus.NO_CONTENT) : new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
-    //тут по умові завдання не вказано повертати значення head в false якщо жоден Route не містить її,але тоді з часом всі локаціі стануть head-true
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable long id) {
-        Route route = routeRepository.findRouteById(id);
-        routeRepository.delete(id);
-
-        Location head = route.getHead();
-        boolean existRoute = routeRepository.existsRouteByHead_Id(head.getId());
-        if (!existRoute) {
-            head.setHead(false);
-            locationRepository.save(head);
-        }
+    public ResponseEntity<Route> delete(@PathVariable long id) {
+        int status = routeService.delete(id);
+        return (status != -1 ? new ResponseEntity<>(null, HttpStatus.NO_CONTENT) : new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR));
     }
 }

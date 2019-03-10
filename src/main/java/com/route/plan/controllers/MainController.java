@@ -1,9 +1,8 @@
 package com.route.plan.controllers;
 
-import com.route.plan.domain.Route;
 import com.route.plan.model.RoutePlan;
 import com.route.plan.model.RoutePlanQueue;
-import com.route.plan.repository.RouteRepository;
+import com.route.plan.services.MainService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,24 +13,23 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.concurrent.TimeUnit;
 
 @Controller
 public class MainController {
-    private RouteRepository routeRepository;
+    private final MainService mainService;
 
-    public MainController(RouteRepository routeRepository) {
-        this.routeRepository = routeRepository;
+    public MainController(MainService mainService) {
+        this.mainService = mainService;
     }
 
-    //із статусом 202 ще не доводилось працювати, тому ось така недолуга реалізація :)
+    //тут не корректна реалізація, тому що ще не доводилось працювати із встановленням часу очікування сервером + не встигла розібратись самостійно
     @GetMapping(value = "/routes/{id}/plan", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getRouteSuccess(HttpServletResponse response, @PathVariable long id) throws InterruptedException {
-        Route route = routeRepository.findRouteById(id);
-        RoutePlan routePlan = new RoutePlan(route.getLocations(), route.getHead());
+    public ResponseEntity<Object> getRouteSuccess(HttpServletResponse response, @PathVariable long id) {
+        RoutePlan routePlan = mainService.getRoutePlan(id);
 
-       TimeUnit.SECONDS.sleep(20);
-
+        if (routePlan == null) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         int status = response.getStatus();
         if (status == 202) {
             return new ResponseEntity<>("Location:/routePlanQueue/100500/" + id, HttpStatus.ACCEPTED);
