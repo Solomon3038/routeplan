@@ -24,7 +24,11 @@ public class LocationController {
                          @RequestParam float y) {
 
         Location location = new Location(name, x, y);
-        return locationRepository.save(location);
+        Location locationSaved = locationRepository.save(location);
+        if (locationSaved.getId() == null) {
+            return null;
+        }
+        return locationSaved;
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -53,7 +57,8 @@ public class LocationController {
     public void delete(@PathVariable long id) {
         Location location = locationRepository.findLocationById(id);
         if (!location.isHead()) {
-            locationRepository.deleteById(id);
+            locationRepository.delete(id);
+            //locationRepository.deleteById(id);
         }
     }
 }

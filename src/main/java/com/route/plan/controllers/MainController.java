@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 public class MainController {
@@ -29,7 +30,7 @@ public class MainController {
         Route route = routeRepository.findRouteById(id);
         RoutePlan routePlan = new RoutePlan(route.getLocations(), route.getHead());
 
-        //TimeUnit.SECONDS.sleep(60);
+       TimeUnit.SECONDS.sleep(20);
 
         int status = response.getStatus();
         if (status == 202) {
@@ -51,4 +52,5 @@ public class MainController {
         routePlanQueue.setStatus("processing");
         return new ResponseEntity<>(routePlanQueue, HttpStatus.OK);
     }
+
 }

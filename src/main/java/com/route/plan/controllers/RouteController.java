@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 @Controller
 @RequestMapping("/routes")
 public class RouteController {
-
     private final RouteRepository routeRepository;
     private final LocationRepository locationRepository;
 
@@ -29,12 +28,15 @@ public class RouteController {
     public Route save(@RequestParam String name,
                       @RequestParam long headId,
                       @RequestParam Long[] locationsId) {
-
         Location[] locations = Stream.of(locationsId).map(locationRepository::findLocationById).toArray(Location[]::new);
         Location head = locationRepository.findLocationById(headId);
         head.setHead(true);
         Route route = new Route(name, locations, head);
-        return routeRepository.save(route);
+        Route routeSaved = routeRepository.save(route);
+        if (routeSaved.getId() == null) {
+            return null;
+        }
+        return routeSaved;
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -62,7 +64,7 @@ public class RouteController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long id) {
         Route route = routeRepository.findRouteById(id);
-        routeRepository.deleteById(id);
+        routeRepository.delete(id);
 
         Location head = route.getHead();
         boolean existRoute = routeRepository.existsRouteByHead_Id(head.getId());

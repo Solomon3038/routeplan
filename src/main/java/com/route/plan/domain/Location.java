@@ -2,8 +2,6 @@ package com.route.plan.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -31,7 +29,6 @@ public class Location {
 
     @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "locations")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Route> routes;
 
     @JsonIgnore
