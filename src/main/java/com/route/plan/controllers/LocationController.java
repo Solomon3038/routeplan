@@ -9,6 +9,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @Controller
 @RequestMapping("/locations")
@@ -21,36 +24,38 @@ public class LocationController {
         this.locationService = locationService;
     }
 
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Location> save(@RequestParam String name,
-                                         @RequestParam float x,
-                                         @RequestParam float y) {
-        logger.info("save {}", name, x, y);
-        Location location = locationService.save(name, x, y);
-        return (location != null ? new ResponseEntity<>(location, HttpStatus.CREATED) : new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR));
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Location> save(@RequestBody Location location) {
+        logger.info("save {}", location);
+        Location created = locationService.save(location);
+
+        URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/locations" + "/{id}")
+                .buildAndExpand(created.getId()).toUri();
+
+        return ResponseEntity.created(uriOfNewResource).body(created);
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Location> get(@PathVariable Long id) {
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public Location get(@PathVariable long id) {
         logger.info("get {}", id);
-        Location location = locationService.get(id);
-        return (location != null ? new ResponseEntity<>(location, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
+        return locationService.get(id);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Location> update(@PathVariable long id,
-                                           @RequestParam String name,
-                                           @RequestParam float x,
-                                           @RequestParam float y) {
-        logger.info("update {}", id, name, x, y);
-        Location location = locationService.update(id, name, x, y);
-        return (location != null ? new ResponseEntity<>(location, HttpStatus.NO_CONTENT) : new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR));
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void update(@RequestBody Location location, @PathVariable long id) {
+        logger.info("update {} with id={}", location, id);
+        locationService.update(id, location);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable long id) {
         logger.info("delete {}", id);
-        int status = locationService.delete(id);
-        return (status != -1 ? new ResponseEntity<>(null, HttpStatus.NO_CONTENT) : new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR));
+        locationService.delete(id);
     }
 }

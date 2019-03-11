@@ -21,11 +21,8 @@ public class RouteService {
     }
 
     @CacheEvict(value = "getRoutePlan", allEntries = true)
-    public Route save(String name, long headId, Long[] locationsId) {
+    public Route save(String name, Long headId, Long[] locationsId) {
 
-        if (name == null || name.trim().length() == 0 || locationsId == null || locationsId.length == 0) {
-            return null;
-        }
         ArrayList<Long> arrayList = new ArrayList<>(Arrays.asList(locationsId));
         ArrayList<Location> locationsList = (ArrayList<Location>) locationRepository.findAllById(arrayList);
 
@@ -52,40 +49,38 @@ public class RouteService {
     }
 
     @CacheEvict(value = "getRoutePlan", allEntries = true)
-    public Route update(long id, long headId) {
+    public void update(long id, long headId) {
         Route route = routeRepository.findRouteById(id);
 
-        if (route == null) {
-            return null;
-        }
-        Location headOld = route.getHead();
-        headOld.setHead(false);
-        Location headNew = locationRepository.findLocationById(headId);
+        if (route != null) {
 
-        if (headNew == null) {
-            return null;
+            Location headOld = route.getHead();
+            headOld.setHead(false);
+            Location headNew = locationRepository.findLocationById(headId);
+
+            if (headNew != null) {
+                headNew.setHead(true);
+                route.setHead(headNew);
+                routeRepository.save(route);
+            }
         }
-        headNew.setHead(true);
-        route.setHead(headNew);
-        return routeRepository.save(route);
     }
 
     //тут по умові завдання не вказано повертати значення head в false якщо жоден Route не містить її,але тоді з часом всі локаціі стануть head-true
-    //добавила очистку кеша, тому що якщо маршруту вже нема, то і план його не повинен бут доступний
+    //добавила очистку кеша, тому що якщо маршруту вже нема, то і план його не повинен бути доступний
     @CacheEvict(value = "getRoutePlan", allEntries = true)
-    public int delete(long id) {
+    public void delete(long id) {
         Route route = routeRepository.findRouteById(id);
 
-        if (route == null) {
-            return -1;
+        if (route != null) {
+
+            routeRepository.delete(id);
+            Location head = route.getHead();
+            boolean existRoute = routeRepository.existsRouteByHead_Id(head.getId());
+            if (!existRoute) {
+                head.setHead(false);
+                locationRepository.save(head);
+            }
         }
-        routeRepository.delete(id);
-        Location head = route.getHead();
-        boolean existRoute = routeRepository.existsRouteByHead_Id(head.getId());
-        if (!existRoute) {
-            head.setHead(false);
-            locationRepository.save(head);
-        }
-        return 1;
     }
 }

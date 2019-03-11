@@ -43,6 +43,7 @@ public class Location {
 
     @EqualsAndHashCode.Exclude
     @JsonIgnore
+    @NotNull
     private boolean head;
 
     public Location(String name, float x, float y) {

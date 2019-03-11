@@ -16,10 +16,10 @@ public interface LocationRepository extends CrudRepository<Location, Long> {
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM Location r WHERE r.id=:id")
+    @Query("DELETE FROM Location l WHERE l.id=:id")
     void delete(@Param("id") long id);
 
-    Location findLocationById(long id);
+    Location findLocationById(@Param("id") long id);
 
     Iterable<Location> findAllById(Iterable<Long> var1);
 }

@@ -13,44 +13,32 @@ public class LocationService {
         this.locationRepository = locationRepository;
     }
 
-    public Location save(String name, float x, float y) {
-
-        if (name != null && name.trim().length() != 0) {
-            Location location = new Location(name.trim(), x, y);
-            return locationRepository.save(location);
-        }
-        return null;
+    public Location save(Location location) {
+        return locationRepository.save(location);
     }
 
-    public Location get(Long id) {
+    public Location get(long id) {
         return locationRepository.findLocationById(id);
     }
 
     @CacheEvict(value = "getRoutePlan", allEntries = true)
-    public Location update(long id, String name, float x, float y) {
+    public void update(long id, Location location) {
 
-        if (name != null && name.trim().length() != 0) {
-            Location location = locationRepository.findLocationById(id);
+        Location current = locationRepository.findLocationById(id);
 
-            if (location != null) {
-                location.setName(name.trim());
-                location.setX(x);
-                location.setY(y);
-                return locationRepository.save(location);
-            }
+        if (current != null) {
+            location.setId(id);
+            locationRepository.save(location);
         }
-        return null;
     }
 
     @CacheEvict(value = "getRoutePlan", allEntries = true)
-    public int delete(long id) {
+    public void delete(long id) {
         Location location = locationRepository.findLocationById(id);
 
         if (location != null && !location.isHead()) {
             locationRepository.delete(id);
-            return 1;
         }
-        return -1;
     }
 }
 
