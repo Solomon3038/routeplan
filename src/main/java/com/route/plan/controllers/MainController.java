@@ -3,6 +3,8 @@ package com.route.plan.controllers;
 import com.route.plan.model.RoutePlan;
 import com.route.plan.model.RoutePlanQueue;
 import com.route.plan.services.MainService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class MainController {
+    private static final Logger logger = LogManager.getLogger(MainController.class);
     private final MainService mainService;
 
     public MainController(MainService mainService) {
@@ -25,6 +28,7 @@ public class MainController {
     //тут не корректна реалізація, тому що ще не доводилось працювати із встановленням часу очікування сервером + не встигла розібратись самостійно
     @GetMapping(value = "/routes/{id}/plan", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getRouteSuccess(HttpServletResponse response, @PathVariable long id) {
+        logger.info("getRouteSuccess {}", id);
         RoutePlan routePlan = mainService.getRoutePlan(id);
 
         if (routePlan == null) {
@@ -42,6 +46,7 @@ public class MainController {
     @ResponseBody
     @ResponseStatus(value = HttpStatus.OK)
     public ResponseEntity<Object> getRouteStatus(HttpServletResponse response, @PathVariable long id) {
+        logger.info("getRouteStatus {}", response, id);
         int status = response.getStatus();
         if (status == 303) {
             return new ResponseEntity<>("Location:/routes/" + id + "/plan", HttpStatus.SEE_OTHER);

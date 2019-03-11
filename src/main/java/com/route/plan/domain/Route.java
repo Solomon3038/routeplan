@@ -3,12 +3,17 @@ package com.route.plan.domain;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+@Data
+@NoArgsConstructor
 @Entity
 @TableGenerator(name = "route")
 public class Route {
@@ -21,12 +26,14 @@ public class Route {
     @Column(unique = true)
     private String name;
 
+    @EqualsAndHashCode.Exclude
     @NotNull
     @OneToOne(fetch = FetchType.LAZY)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonIdentityReference(alwaysAsId = true)
     private Location head;
 
+    @EqualsAndHashCode.Exclude
     @NotNull
     @ManyToMany(fetch = FetchType.LAZY)
     @OrderColumn(name = "id")
@@ -38,44 +45,9 @@ public class Route {
     @JsonIdentityReference(alwaysAsId = true)
     private Location[] locations;
 
-    public Route() {
-    }
-
     public Route(String name, Location[] locations, Location head) {
         this.name = name;
         this.locations = locations;
-        this.head = head;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Location[] getLocations() {
-        return locations;
-    }
-
-    public void setLocations(Location[] locations) {
-        this.locations = locations;
-    }
-
-    public Location getHead() {
-        return head;
-    }
-
-    public void setHead(Location head) {
         this.head = head;
     }
 }
