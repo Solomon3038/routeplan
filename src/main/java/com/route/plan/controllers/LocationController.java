@@ -2,6 +2,7 @@ package com.route.plan.controllers;
 
 import com.route.plan.domain.Location;
 import com.route.plan.services.LocationService;
+import org.apache.coyote.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -53,9 +54,12 @@ public class LocationController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable long id) {
+    public ResponseEntity<Integer> delete(@PathVariable long id) {
         logger.info("delete {}", id);
-        locationService.delete(id);
+        int status = locationService.delete(id);
+        if (status == 1) {
+            return new ResponseEntity<>(1, HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(-1, HttpStatus.NOT_FOUND);
     }
 }

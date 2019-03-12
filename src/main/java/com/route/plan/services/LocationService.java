@@ -33,12 +33,15 @@ public class LocationService {
     }
 
     @CacheEvict(value = "getRoutePlan", allEntries = true)
-    public void delete(long id) {
+    public int delete(long id) {
         Location location = locationRepository.findLocationById(id);
 
         if (location != null && !location.isHead()) {
             locationRepository.delete(id);
+            return 1;
         }
+
+        return -1;
     }
 }
 

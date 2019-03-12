@@ -12,7 +12,7 @@ public interface RouteRepository extends CrudRepository<Route, Long> {
 
     @Override
     @Transactional
-    <S extends Route> S  save(S item);
+    <S extends Route> S save(S item);
 
     @Transactional
     @Modifying
